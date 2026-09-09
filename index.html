@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1B2430">
+<title>255 to 195</title>
+<style>
+  :root{
+    --bg:#1B2430; --panel:#243040; --panel2:#2C3A4D; --line:#3A4A60;
+    --ink:#F2EFE9; --muted:#9AA8BA; --accent:#F26522; --accent-ink:#1B1410; --good:#5DBB63; --bar:#4E88C7;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Helvetica,Arial,sans-serif;font-size:16px;line-height:1.4;-webkit-text-size-adjust:100%}
+  body{padding-bottom:calc(74px + env(safe-area-inset-bottom))}
+  h1,h2,h3{margin:0;letter-spacing:-.02em}
+  h1{font-size:34px;font-weight:800;line-height:1}
+  h2{font-size:22px;font-weight:700}
+  h3{font-size:17px;font-weight:700}
+  p{margin:0}
+  .muted{color:var(--muted)}
+  .small{font-size:13px}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+  input,select{font:inherit;color:var(--ink);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;font-size:17px}
+  input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  input[type=number]{-moz-appearance:textfield;text-align:center}
+  input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none}
+
+  .screen{display:none;padding:calc(16px + env(safe-area-inset-top)) 16px 16px}
+  .screen.on{display:block}
+  .section{margin-top:24px}
+  .panel{background:var(--panel);border-radius:14px;padding:16px}
+  .row{display:flex;align-items:center;gap:12px}
+  .btn{display:block;width:100%;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:17px;padding:15px;border-radius:12px;text-align:center}
+  .btn.ghost{background:var(--panel2);color:var(--ink);font-weight:600}
+  .btn.small{padding:10px 14px;font-size:14px;width:auto;display:inline-block}
+  .btn:active{transform:scale(.98)}
+
+  /* home: the weight track */
+  .track{margin-top:22px}
+  .track-nums{display:flex;justify-content:space-between;font-weight:800;font-size:15px}
+  .track-bar{position:relative;height:14px;border-radius:7px;background:var(--panel2);margin:10px 0 6px;overflow:visible}
+  .track-fill{position:absolute;left:0;top:0;bottom:0;border-radius:7px;background:var(--accent);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+  .track-pin{position:absolute;top:-30px;transform:translateX(-50%);background:var(--ink);color:var(--bg);font-weight:800;font-size:13px;padding:3px 8px;border-radius:8px;white-space:nowrap;transition:left .6s cubic-bezier(.2,.8,.2,1)}
+  .track-pin:after{content:"";position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--ink);border-bottom:0}
+
+  .week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+  .day{border-radius:10px;padding:10px 0;text-align:center;background:var(--panel2);font-size:12px;color:var(--muted)}
+  .day b{display:block;font-size:15px;color:var(--ink)}
+  .day.lift{background:var(--accent);color:var(--accent-ink)} .day.lift b{color:var(--accent-ink)}
+  .day.bar{background:var(--bar);color:#fff} .day.bar b{color:#fff}
+  .day.today{outline:2px solid var(--ink);outline-offset:2px}
+  .legend{display:flex;gap:14px;margin-top:10px;font-size:13px;color:var(--muted)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+  .stat{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
+  .stat:last-child{border-bottom:0}
+  .stat b{font-size:19px}
+
+  /* workout */
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .back{color:var(--muted);font-size:16px;padding:6px 0}
+  .ex{background:var(--panel);border-radius:14px;padding:14px;margin-top:12px}
+  .ex-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+  .ex-head .cue{font-size:13px;color:var(--muted);margin-top:3px}
+  .vid{color:var(--accent);font-weight:700;font-size:14px;white-space:nowrap;padding:6px 0;text-decoration:none}
+  .last{font-size:13px;color:var(--muted);margin-top:8px}
+  .sets{margin-top:10px;display:grid;grid-template-columns:36px 1fr 1fr 44px;gap:8px;align-items:center}
+  .sets .hd{font-size:12px;color:var(--muted);text-align:center}
+  .sets .n{text-align:center;color:var(--muted);font-weight:700}
+  .done{width:44px;height:44px;border-radius:10px;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-weight:800}
+  .done.ok{background:var(--good);color:#0F2A12}
+  .timer{position:fixed;left:16px;right:16px;bottom:calc(80px + env(safe-area-inset-bottom));background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 16px;display:none;align-items:center;justify-content:space-between;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+  .timer.on{display:flex}
+  .timer span{font-size:26px;font-variant-numeric:tabular-nums}
+  .timer button{color:var(--bg);font-weight:700;padding:8px 10px}
+
+  /* history */
+  .hist{background:var(--panel);border-radius:14px;padding:14px;margin-top:10px}
+  .hist summary{font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between}
+  .hist summary::-webkit-details-marker{display:none}
+  .hist .line{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-top:1px solid var(--line)}
+  .hist .line:first-of-type{margin-top:10px}
+
+  /* nav */
+  nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--panel);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+  nav button{flex:1;padding:8px 4px;color:var(--muted);font-size:12px;font-weight:600;border-radius:10px}
+  nav button.on{color:var(--accent)}
+  nav button span{display:block;font-size:20px;margin-bottom:2px}
+
+  .field{margin-top:12px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{padding:8px 12px;border-radius:999px;background:var(--panel2);font-size:14px;font-weight:600}
+  .chip.on{background:var(--accent);color:var(--accent-ink)}
+  .chip.bar.on{background:var(--bar);color:#fff}
+  .toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--good);color:#0F2A12;font-weight:700;padding:10px 16px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .25s}
+  .toast.on{opacity:1}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<section id="home" class="screen on">
+  <p class="muted small" id="todayLabel"></p>
+  <h1 id="homeTitle">Let's get after it.</h1>
+
+  <div class="track">
+    <div class="track-nums"><span id="startW">255</span><span id="goalW">195</span></div>
+    <div class="track-bar"><div class="track-fill" id="fill"></div><div class="track-pin" id="pin">255</div></div>
+    <p class="small muted" id="trackNote"></p>
+  </div>
+
+  <div class="section">
+    <div class="row" style="justify-content:space-between">
+      <h2>This week</h2><button class="muted small" onclick="show('settings')">Change days</button>
+    </div>
+    <div class="week" id="week"></div>
+    <div class="legend"><span><i style="background:var(--accent)"></i>Lift</span><span><i style="background:var(--bar)"></i>Bar shift (steps day)</span><span><i style="background:var(--panel2)"></i>Rest &amp; walk</span></div>
+  </div>
+
+  <div class="section">
+    <h2>Next workout</h2>
+    <div class="panel" style="margin-top:12px">
+      <div class="row" style="justify-content:space-between">
+        <div><h3 id="nextName"></h3><p class="small muted" id="nextSub"></p></div>
+        <div class="chips" id="pickDay"></div>
+      </div>
+      <button class="btn" style="margin-top:14px" onclick="startWorkout()">Start workout</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Log bodyweight</h2>
+    <div class="panel" style="margin-top:12px">
+      <div class="row">
+        <input type="number" inputmode="decimal" step="0.1" id="bwIn" placeholder="lbs">
+        <button class="btn small" onclick="logBW()">Save</button>
+      </div>
+      <p class="small muted" style="margin-top:8px">Weigh in mornings, same conditions. Watch the weekly average, not the daily number.</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Daily targets</h2>
+    <div class="panel" style="margin-top:12px" id="targets"></div>
+  </div>
+</section>
+
+<!-- WORKOUT -->
+<section id="workout" class="screen">
+  <div class="topbar"><button class="back" onclick="show('home')">‹ Home</button><span class="muted small" id="wDate"></span></div>
+  <h1 id="wTitle"></h1>
+  <p class="muted small" style="margin-top:6px">Rest 1 to 2 min between sets. Beat last week by a rep or a little weight.</p>
+  <div id="exList"></div>
+  <button class="btn" style="margin-top:20px" onclick="finishWorkout()">Finish &amp; save</button>
+  <button class="btn ghost" style="margin-top:10px" onclick="if(confirm('Discard this workout?'))show('home')">Discard</button>
+  <div class="timer" id="timer"><div>Rest <span id="tRem">1:30</span></div><div><button onclick="timerAdd(30)">+30s</button><button onclick="timerStop()">Done</button></div></div>
+</section>
+
+<!-- HISTORY -->
+<section id="history" class="screen">
+  <h1>History</h1>
+  <div class="section"><h2>Bodyweight</h2><div class="panel" style="margin-top:12px"><svg id="bwChart" viewBox="0 0 320 120" width="100%" height="120"></svg><p class="small muted" id="bwNote" style="margin-top:8px"></p></div></div>
+  <div class="section"><h2>Workouts</h2><div id="histList"></div></div>
+</section>
+
+<!-- VIDEOS -->
+<section id="videos" class="screen">
+  <h1>How to do each lift</h1>
+  <p class="muted small" style="margin-top:6px">Tap any exercise to open a YouTube search for a form tutorial. Watch one before your first session with that lift.</p>
+  <div id="vidList"></div>
+</section>
+
+<!-- SETTINGS -->
+<section id="settings" class="screen">
+  <h1>Settings</h1>
+  <div class="panel" style="margin-top:16px">
+    <div class="field"><label>Lifting days (pick 3)</label><div class="chips" id="liftDays"></div></div>
+    <div class="field"><label>Bartending days</label><div class="chips" id="barDays"></div></div>
+    <div class="row" style="margin-top:12px"><div class="field" style="flex:1"><label>Start weight</label><input type="number" id="sStart"></div><div class="field" style="flex:1"><label>Goal weight</label><input type="number" id="sGoal"></div></div>
+    <button class="btn" style="margin-top:16px" onclick="saveSettings()">Save settings</button>
+  </div>
+  <div class="panel" style="margin-top:16px">
+    <h3>Backup</h3>
+    <p class="small muted" style="margin:6px 0 12px">Data lives only on this phone. Export now and then so you don't lose your log.</p>
+    <button class="btn ghost" onclick="exportData()">Copy backup to clipboard</button>
+    <button class="btn ghost" style="margin-top:8px" onclick="importData()">Restore from backup</button>
+    <button class="btn ghost" style="margin-top:8px;color:#F08080" onclick="if(confirm('Erase everything?')){localStorage.removeItem(KEY);location.reload()}">Erase all data</button>
+  </div>
+</section>
+
+<nav>
+  <button class="on" data-s="home" onclick="show('home')"><span>⌂</span>Home</button>
+  <button data-s="history" onclick="show('history')"><span>▤</span>History</button>
+  <button data-s="videos" onclick="show('videos')"><span>▶</span>Videos</button>
+  <button data-s="settings" onclick="show('settings')"><span>⚙</span>Settings</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY='cut255';
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const PROGRAM={
+  A:{name:'Full Body A',ex:[
+    {n:'Squat',sets:4,reps:'6–10',cue:'Brace, sit between your hips, drive the floor away.',q:'barbell back squat form'},
+    {n:'Bench Press',sets:4,reps:'6–8',cue:'Shoulder blades pinned, bar to lower chest, feet planted.',q:'barbell bench press form'},
+    {n:'Bent Over Row',sets:4,reps:'8–10',cue:'Hinge to ~45°, pull to your belt line, no jerking.',q:'barbell bent over row form'},
+    {n:'Leg Curl',sets:3,reps:'12–15',cue:'Control the lowering, squeeze hamstrings at the top.',q:'lying leg curl machine form'},
+    {n:'DB Curl',sets:3,reps:'10–12',cue:'Elbows still, full range, no swinging.',q:'dumbbell bicep curl form'}]},
+  B:{name:'Full Body B',ex:[
+    {n:'Romanian Deadlift',sets:4,reps:'8–10',cue:'Push hips back, soft knees, bar close to legs, feel hamstrings.',q:'romanian deadlift form'},
+    {n:'Overhead Press',sets:4,reps:'8–10',cue:'Glutes tight, bar over midfoot, head through at the top.',q:'barbell overhead press form'},
+    {n:'Lat Pulldown',sets:4,reps:'10–12',cue:'Lead with elbows, bar to upper chest, chest up.',q:'lat pulldown form'},
+    {n:'Walking Lunge',sets:3,reps:'10/leg',cue:'Long step, back knee kisses the floor, torso tall.',q:'dumbbell walking lunge form'},
+    {n:'Tricep Pushdown',sets:3,reps:'12–15',cue:'Elbows pinned to sides, lock out fully.',q:'cable tricep pushdown form'}]},
+  C:{name:'Full Body C',ex:[
+    {n:'Leg Press',sets:4,reps:'10–12',cue:'Feet mid-platform, deep as your low back stays flat.',q:'leg press form'},
+    {n:'Incline DB Press',sets:4,reps:'8–10',cue:'30° bench, dumbbells to upper chest, don\'t flare elbows.',q:'incline dumbbell press form'},
+    {n:'Chest Supported Row',sets:4,reps:'10–12',cue:'Chest glued to pad, squeeze shoulder blades together.',q:'chest supported row form'},
+    {n:'Lateral Raise',sets:4,reps:'12–15',cue:'Slight lean forward, lead with elbows, light weight.',q:'dumbbell lateral raise form'},
+    {n:'Hanging Knee Raise',sets:3,reps:'12–15',cue:'Tilt pelvis, curl knees up, no swinging.',q:'hanging knee raise form'}]}
+};
+const ORDER=['A','B','C'];
+
+let S=load();
+function load(){
+  const d={start:255,goal:195,liftDays:[1,3,5],barDays:[4,6],bw:[],sessions:[]};
+  try{return Object.assign(d,JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(e){return d}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),1600)}
+function fmtDate(d){return new Date(d).toLocaleDateString(undefined,{month:'short',day:'numeric'})}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.s===id));
+  window.scrollTo(0,0);
+  if(id==='home')renderHome(); if(id==='history')renderHistory(); if(id==='videos')renderVideos(); if(id==='settings')renderSettings();
+}
+
+/* ---------- HOME ---------- */
+let pickedDay=null;
+function nextDayKey(){
+  if(pickedDay)return pickedDay;
+  const last=S.sessions[S.sessions.length-1];
+  return last?ORDER[(ORDER.indexOf(last.day)+1)%3]:'A';
+}
+function currentBW(){return S.bw.length?S.bw[S.bw.length-1].w:S.start}
+function renderHome(){
+  const now=new Date();
+  document.getElementById('todayLabel').textContent=now.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+  const cw=currentBW(), span=S.start-S.goal, done=Math.max(0,Math.min(1,(S.start-cw)/span));
+  document.getElementById('startW').textContent=S.start; document.getElementById('goalW').textContent=S.goal;
+  document.getElementById('fill').style.width=(done*100)+'%';
+  const pin=document.getElementById('pin'); pin.style.left=(done*100)+'%'; pin.textContent=cw;
+  const lost=(S.start-cw).toFixed(1), left=(cw-S.goal).toFixed(1);
+  document.getElementById('trackNote').textContent=S.bw.length?`${lost} lbs down, ${left} to go.`:'Log your first weigh-in below to start the track.';
+  const isLift=S.liftDays.includes(now.getDay()), isBar=S.barDays.includes(now.getDay());
+  document.getElementById('homeTitle').textContent=isLift?'Lift day.':isBar?'Bar shift. Steps day.':'Rest and walk.';
+
+  const wk=document.getElementById('week'); wk.innerHTML='';
+  let li=0;
+  DAYS.forEach((d,i)=>{
+    const el=document.createElement('div'); el.className='day';
+    let lab='rest';
+    if(S.liftDays.includes(i)){el.classList.add('lift');lab='Day '+ORDER[li%3];li++}
+    else if(S.barDays.includes(i)){el.classList.add('bar');lab='bar'}
+    if(i===now.getDay())el.classList.add('today');
+    el.innerHTML=`<b>${d}</b>${lab}`; wk.appendChild(el);
+  });
+
+  const k=nextDayKey();
+  document.getElementById('nextName').textContent=PROGRAM[k].name;
+  const cnt=S.sessions.filter(s=>s.day===k).length;
+  document.getElementById('nextSub').textContent=cnt?`Done ${cnt}× · last ${fmtDate(S.sessions.filter(s=>s.day===k).pop().date)}`:'First time running this one';
+  const pd=document.getElementById('pickDay'); pd.innerHTML='';
+  ORDER.forEach(o=>{const c=document.createElement('button');c.className='chip'+(o===k?' on':'');c.textContent=o;c.onclick=()=>{pickedDay=o;renderHome()};pd.appendChild(c)});
+
+  const g=S.goal;
+  document.getElementById('targets').innerHTML=`
+    <div class="stat"><span>Protein</span><b>${g} g</b></div>
+    <div class="stat"><span>Calories</span><b>${g*11}–${g*12}</b></div>
+    <div class="stat"><span>Steps</span><b>8,000–10,000</b></div>
+    <div class="stat"><span>Sleep</span><b>7–9 hrs</b></div>
+    <p class="small muted" style="margin-top:10px">From the program: protein at 1 g per lb of goal weight, calories at goal weight × 11–12. Adjust down a little if the scale stalls 2+ weeks, up if you're dragging.</p>`;
+}
+function logBW(){
+  const v=parseFloat(document.getElementById('bwIn').value); if(!v)return;
+  const today=new Date().toISOString().slice(0,10);
+  S.bw=S.bw.filter(b=>b.d!==today); S.bw.push({d:today,w:v}); S.bw.sort((a,b)=>a.d<b.d?-1:1);
+  save(); document.getElementById('bwIn').value=''; toast('Weight saved'); renderHome();
+}
+
+/* ---------- WORKOUT ---------- */
+let W=null;
+function lastFor(day,exName){
+  for(let i=S.sessions.length-1;i>=0;i--){const s=S.sessions[i];if(s.day!==day)continue;const e=s.ex.find(x=>x.n===exName);if(e&&e.sets.some(t=>t.w||t.r))return e}
+  return null;
+}
+function startWorkout(){
+  const k=nextDayKey();
+  W={day:k,date:new Date().toISOString(),ex:PROGRAM[k].ex.map(e=>({n:e.n,sets:Array.from({length:e.sets},()=>({w:'',r:'',ok:false}))}))};
+  document.getElementById('wTitle').textContent=PROGRAM[k].name;
+  document.getElementById('wDate').textContent=fmtDate(W.date);
+  const list=document.getElementById('exList'); list.innerHTML='';
+  PROGRAM[k].ex.forEach((e,ei)=>{
+    const prev=lastFor(k,e.n);
+    const box=document.createElement('div'); box.className='ex';
+    let sets=`<div class="sets"><div></div><div class="hd">lbs</div><div class="hd">reps</div><div></div>`;
+    for(let s=0;s<e.sets;s++){
+      const pw=prev&&prev.sets[s]?prev.sets[s].w:'', pr=prev&&prev.sets[s]?prev.sets[s].r:'';
+      if(pw)W.ex[ei].sets[s].w=pw; if(pr)W.ex[ei].sets[s].r=pr;
+      sets+=`<div class="n">${s+1}</div>
+        <input type="number" inputmode="decimal" value="${pw}" placeholder="—" oninput="W.ex[${ei}].sets[${s}].w=this.value">
+        <input type="number" inputmode="numeric" value="${pr}" placeholder="—" oninput="W.ex[${ei}].sets[${s}].r=this.value">
+        <button class="done" onclick="setDone(this,${ei},${s})">✓</button>`;
+    }
+    sets+='</div>';
+    box.innerHTML=`<div class="ex-head"><div><h3>${e.n}</h3><div class="cue">${e.sets} × ${e.reps} · ${e.cue}</div></div><a class="vid" target="_blank" rel="noopener" href="${yt(e.q)}">▶ How-to</a></div>
+      <div class="last">${prev?'Last time: '+prev.sets.filter(t=>t.w||t.r).map(t=>`${t.w||'—'}×${t.r||'—'}`).join(', ')+'. Beat one of those.':'No previous log. Start light, nail the form.'}</div>${sets}`;
+    list.appendChild(box);
+  });
+  show('workout');
+}
+function setDone(btn,ei,si){
+  const st=W.ex[ei].sets[si]; st.ok=!st.ok; btn.classList.toggle('ok',st.ok);
+  if(st.ok)timerStart(90);
+}
+function finishWorkout(){
+  const filled=W.ex.some(e=>e.sets.some(s=>s.w||s.r));
+  if(!filled&&!confirm('Nothing logged yet. Save anyway?'))return;
+  S.sessions.push(W); save(); timerStop(); pickedDay=null; W=null; toast('Workout saved'); show('home');
+}
+/* rest timer */
+let tEnd=0,tInt=null;
+function timerStart(sec){tEnd=Date.now()+sec*1000;document.getElementById('timer').classList.add('on');clearInterval(tInt);tInt=setInterval(tick,250);tick()}
+function timerAdd(s){tEnd+=s*1000;tick()}
+function timerStop(){clearInterval(tInt);document.getElementById('timer').classList.remove('on')}
+function tick(){const r=Math.max(0,Math.round((tEnd-Date.now())/1000));document.getElementById('tRem').textContent=Math.floor(r/60)+':'+String(r%60).padStart(2,'0');if(r<=0){timerStop();if(navigator.vibrate)navigator.vibrate(200)}}
+
+/* ---------- HISTORY ---------- */
+function renderHistory(){
+  const svg=document.getElementById('bwChart'), note=document.getElementById('bwNote');
+  const pts=S.bw.slice(-30);
+  if(pts.length<2){svg.innerHTML='';note.textContent='Log a few weigh-ins to see the trend.';}
+  else{
+    const ws=pts.map(p=>p.w), lo=Math.min(S.goal,...ws)-2, hi=Math.max(S.start,...ws)+2;
+    const X=i=>10+i*(300/(pts.length-1)), Y=w=>110-((w-lo)/(hi-lo))*100;
+    const path=pts.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(p.w).toFixed(1)).join(' ');
+    svg.innerHTML=`<line x1="10" x2="310" y1="${Y(S.goal)}" y2="${Y(S.goal)}" stroke="#5DBB63" stroke-dasharray="4 4"/><path d="${path}" fill="none" stroke="#F26522" stroke-width="3" stroke-linejoin="round"/>${pts.map((p,i)=>`<circle cx="${X(i)}" cy="${Y(p.w)}" r="3" fill="#F2EFE9"/>`).join('')}`;
+    const first=pts[0], last=pts[pts.length-1];
+    const wk=Math.max(1,(new Date(last.d)-new Date(first.d))/604800000);
+    note.textContent=`${(first.w-last.w).toFixed(1)} lbs over ${wk.toFixed(1)} weeks (${((first.w-last.w)/wk).toFixed(2)} lb/wk). Green line is ${S.goal}.`;
+  }
+  const hl=document.getElementById('histList'); hl.innerHTML='';
+  if(!S.sessions.length){hl.innerHTML='<p class="muted" style="margin-top:12px">No workouts yet. Your first one shows up here.</p>';return}
+  [...S.sessions].reverse().forEach((s,ri)=>{
+    const idx=S.sessions.length-1-ri;
+    const d=document.createElement('details'); d.className='hist';
+    d.innerHTML=`<summary><span>${PROGRAM[s.day].name}</span><span class="muted">${fmtDate(s.date)}</span></summary>`+
+      s.ex.map(e=>`<div class="line"><span>${e.n}</span><span class="muted">${e.sets.filter(t=>t.w||t.r).map(t=>`${t.w||'—'}×${t.r||'—'}`).join(' · ')||'—'}</span></div>`).join('')+
+      `<button class="small" style="color:#F08080;margin-top:10px" onclick="if(confirm('Delete this workout?')){S.sessions.splice(${idx},1);save();renderHistory()}">Delete</button>`;
+    hl.appendChild(d);
+  });
+}
+
+/* ---------- VIDEOS ---------- */
+function yt(q){return 'https://www.youtube.com/results?search_query='+encodeURIComponent('how to '+q)}
+function renderVideos(){
+  const v=document.getElementById('vidList'); v.innerHTML='';
+  ORDER.forEach(k=>{
+    const h=document.createElement('h2'); h.style.marginTop='24px'; h.textContent=PROGRAM[k].name; v.appendChild(h);
+    PROGRAM[k].ex.forEach(e=>{
+      const a=document.createElement('a'); a.href=yt(e.q); a.target='_blank'; a.rel='noopener';
+      a.className='panel row'; a.style.cssText='margin-top:8px;text-decoration:none;color:inherit;justify-content:space-between';
+      a.innerHTML=`<div><b>${e.n}</b><div class="small muted">${e.cue}</div></div><span class="vid">▶</span>`;
+      v.appendChild(a);
+    });
+  });
+}
+
+/* ---------- SETTINGS ---------- */
+function renderSettings(){
+  const ld=document.getElementById('liftDays'), bd=document.getElementById('barDays'); ld.innerHTML='';bd.innerHTML='';
+  DAYS.forEach((d,i)=>{
+    const a=document.createElement('button');a.className='chip'+(S.liftDays.includes(i)?' on':'');a.textContent=d;
+    a.onclick=()=>{if(S.liftDays.includes(i))S.liftDays=S.liftDays.filter(x=>x!==i);else if(S.liftDays.length<3)S.liftDays.push(i);else toast('Pick 3 lifting days');S.liftDays.sort();renderSettings()};ld.appendChild(a);
+    const b=document.createElement('button');b.className='chip bar'+(S.barDays.includes(i)?' on':'');b.textContent=d;
+    b.onclick=()=>{S.barDays=S.barDays.includes(i)?S.barDays.filter(x=>x!==i):[...S.barDays,i].sort();renderSettings()};bd.appendChild(b);
+  });
+  document.getElementById('sStart').value=S.start; document.getElementById('sGoal').value=S.goal;
+}
+function saveSettings(){
+  S.start=parseFloat(document.getElementById('sStart').value)||S.start;
+  S.goal=parseFloat(document.getElementById('sGoal').value)||S.goal;
+  save(); toast('Settings saved'); show('home');
+}
+function exportData(){
+  const t=JSON.stringify(S);
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('Backup copied')).catch(()=>prompt('Copy this:',t));
+  else prompt('Copy this:',t);
+}
+function importData(){
+  const t=prompt('Paste your backup:'); if(!t)return;
+  try{S=Object.assign(load(),JSON.parse(t));save();toast('Restored');show('home')}catch(e){alert('That didn\'t look like a backup. Nothing changed.')}
+}
+
+renderHome();
+</script>
+</body>
+</html>
